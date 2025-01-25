@@ -1,6 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskRequestDTO } from './dtos/create-task.dto';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { UserId } from 'src/common/decorators/user-id/user-id.decorator';
+import { UpdateTaskDTO } from './dtos/update-task.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -9,24 +12,31 @@ export class TasksController {
 
     @Post()
     @UsePipes(new ValidationPipe())
-    create(@Body() createTaskDTO: CreateTaskRequestDTO){
-        this.tasksService.create(createTaskDTO)
+    @UseGuards(AuthGuard)
+    create(@Body() createTaskDTO: CreateTaskRequestDTO, @UserId() currentUserId: string){
+        return this.tasksService.create({
+            ...createTaskDTO,
+            owner: currentUserId
+        })
     }
 
-    @Get()
-    findAll(){
-        return 'Hello this is my first NestJs Endpoint, Enjoy it! 😁'
+    @Get('/me')
+    @UseGuards(AuthGuard)
+    findMyTasks(@UserId() currentUserId: string){
+        return this.tasksService.findByUserId(currentUserId)
     }
 
-    @Get(':id')
-    findById(@Param('id') id: number){
-        return `Finding by id ${id}`
+
+    @Put(":taskId")
+    @UseGuards(AuthGuard)
+    update(@Param('taskId') taskId:string, @Body() UpdateTaskDTO, @UserId() currentUserId){
+        return this.tasksService.update(taskId, UpdateTaskDTO, currentUserId)
     }
 
-    @Put(":id")
-    update(){}
-
-    @Delete(":id")
-    delete(){}
+    @Delete(":taskId")
+    @UseGuards(AuthGuard)
+    delete(@Param('taskId') taskId:string, @UserId() currentUserId){
+        return this.tasksService.delete(taskId, currentUserId)
+    }
 
 }

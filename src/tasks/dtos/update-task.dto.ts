@@ -1,21 +1,19 @@
-import { IsEnum, IsNotEmpty, IsString, MaxLength } from "class-validator";
+import { IsEnum, IsOptional, IsString, MaxLength } from "class-validator";
 import { TaskStatus } from "../eums/task-status.enum";
 import { TASK_VALIDATION } from "../constants/tasks.constants";
 
-export class CreateTaskRequestDTO {
+export class UpdateTaskDTO {
+    @IsOptional()
     @IsString()
-    @IsNotEmpty()
     @MaxLength(TASK_VALIDATION.TITLE_MAX_LENGTH)
     title: string;
 
+    @IsOptional()
     @IsString()
-    @IsNotEmpty()
     @MaxLength(TASK_VALIDATION.DESCRIPTION_MAX_LENGTH)
     description: string;
 
+    @IsOptional()
     @IsEnum(TaskStatus)
-    @IsNotEmpty()
-    status?: TaskStatus;
-
-    owner: string;
+    status: TaskStatus;
 }
