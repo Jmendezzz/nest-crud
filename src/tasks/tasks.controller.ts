@@ -10,7 +10,7 @@ export class TasksController {
     @Post()
     @UsePipes(new ValidationPipe())
     create(@Body() createTaskDTO: CreateTaskRequestDTO){
-
+        this.tasksService.create(createTaskDTO)
     }
 
     @Get()
