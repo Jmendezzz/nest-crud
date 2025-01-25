@@ -21,7 +21,7 @@ export class AuthService {
 
         const newUser = await this.usersService.create({ email, password: hashedPassword, name });
 
-        const token = this.generateToken(newUser.email);
+        const token = this.generateToken(newUser.email, newUser.id);
 
         return {
             token
@@ -37,11 +37,11 @@ export class AuthService {
 
         const isPasswordValid = await this.comparePasswords(loginDto.password, user.password);
 
-        if(!isPasswordValid) {
+        if (!isPasswordValid) {
             throw new BadRequestException(AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS);
         }
 
-        const token = this.generateToken(user.email);
+        const token = this.generateToken(user.email, user.id);
         return {
             token
         }
@@ -57,7 +57,7 @@ export class AuthService {
         return await bcrypt.compare(password, hashedPassword);
     }
 
-    private generateToken(email: string) {
-        return this.jwtService.sign({ email });
+    private generateToken(email: string, id: string) {
+        return this.jwtService.sign({ email, id });
     }
 }
